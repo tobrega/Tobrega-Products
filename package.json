@@ -1,0 +1,19 @@
+{
+  "name": "tobrega-products",
+  "version": "1.0.0",
+  "description": "Backend API service for Project Catwalk",
+  "main": "index.js",
+  "scripts": {
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tobrega/Tobrega-Products.git"
+  },
+  "author": "Brenton Hershner",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/tobrega/Tobrega-Products/issues"
+  },
+  "homepage": "https://github.com/tobrega/Tobrega-Products#readme"
+}
