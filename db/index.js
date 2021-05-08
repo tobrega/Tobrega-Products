@@ -6,6 +6,11 @@ const pool = new Pool(config);
 const query = 'SELECT * FROM product WHERE product_id = 10';
 // const query = 'SELECT * FROM product WHERE product_id = 10';
 
+module.exports = {
+  query: (text, params, callback) => pool.query(text, params, callback),
+};
+
+
 pool.on('error', (err) => {
   console.error('Unexpected error on idle client', err);
   process.exit(-1);
@@ -30,3 +35,9 @@ pool.on('error', (err) => {
 
 //   pool.end();
 // });
+
+
+
+
+
+
