@@ -58,7 +58,7 @@ Error Messages / Resources / New Techniques you learned, etc.
 - Defined a database schema for the product api.
 
 
-![](https://i.imgur.com/I8Dvx23.png)
+![](https://i.imgur.com/41DsXGQ.png)
 
 What went well?  What could be improved?
 
@@ -147,5 +147,19 @@ In Postgres, use `TEXT` instead of `VARCHAR(n)` for unlimited length.
 UNSIGNED  and TINYINT are not a valid data types in postgres. Use INTEGER instead of INT.
 
 https://stackoverflow.com/questions/2991405/what-is-the-difference-between-tinyint-smallint-mediumint-bigint-and-int-in-m
+
+The order of arguments from COPY FROM matter. After some trial, error, and stack overflow, the following finally worked.
+
+    COPY product FROM '/Users/otherfolders/Tobrega-Products/data/example/cleaned/product.csv' WITH delimiter ',' NULL AS 'null' csv header;
+
+Reference:
+
+https://stackoverflow.com/questions/19034674/copy-null-values-present-in-csv-file-to-postgres
+
+Finally loaded the cleaned data. It took longer than I had hoped, but it's in and it loads in amazingly fast.
+
+![](https://i.imgur.com/gCz8Ooj.png)
+
+Starting to make requests and writing out the functions to match the specific API calls.
 
 
