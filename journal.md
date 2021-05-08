@@ -2,42 +2,35 @@
 
 Brenton Hershner
 
-API Specifications
-Which api did you choose? Why?
+## API Specifications
+### Which api did you choose? Why?
 
-Product. We decided on Group 3’s FEC app before selecting our api’s. Tony did the Product Detail Module for Group 3 so he couldn’t do the Product api. Gabe was interested in Q&A over 
+- Product. We decided on Group 3’s FEC app before selecting our api’s. Tony did the Product Detail Module for Group 3 so he couldn’t do the Product api. Gabe was interested in Q&A over 
 
-Product and I didn’t have a strong preference, so took it.
+### What will you have to do to recreate this api? 
 
-What will you have to do to recreate this api? 
+- Implement a relational database to access and deliver the data.
 
-Implement a relational database to access and deliver the data.
+### Find ways to scale the deployment and make the api as performant as possible. 
 
-Find ways to scale the deployment and make the api as performant as possible. 
+### What is it’s main functionality or purpose?
 
-What is it’s main functionality or purpose?
+- Deliver the results of a query to the product endpoint
 
-Deliver the results of a query to the product endpoint
+### What are important design/styles to create for the user experience?
 
-What are important design/styles to create for the user experience?
+- Very fast and efficient code. Scalable infrastructure.
 
-Very fast and efficient code. Scalable infrastructure.
+### Performance notes
 
-Optimizing Performance
+- What did you try? // Todo
+- What is the difference in performance? // Todo
+- Does the page load faster or create a better user experience? // Todo
 
-What can be optimized? What are the trade-offs?
-
-[TODO]
-
-Performance notes.  What did you try? What is the difference in performance? Does the page load faster or create a better user experience? 
-
-[TODO]
-
-Other Notes
-
-[TODO]
+## Other Notes
 
 Error Messages / Resources / New Techniques you learned, etc.
+
 
 ## Template or suggested daily topics:
 
@@ -57,7 +50,6 @@ Error Messages / Resources / New Techniques you learned, etc.
 - Selected a set of technologies to be implemented in the SDC sprint.
 - Defined a database schema for the product api.
 
-
 ![](https://i.imgur.com/41DsXGQ.png)
 
 What went well?  What could be improved?
@@ -68,34 +60,9 @@ What went badly?  What have you tried? What is next step?
 
 The Google form link didn’t work for many. Someone asked for help but it didn’t seem too important so the answer was deferred until tomorrow morning.
 
-What observations do you have on the work done today? Yours? Others?
-
-Not many. Just initial understanding of the problem at hand.
-
-What pointers or advice would you give someone who is facing the day you just had?  
-
-I wish I’d….
-
-
-
-What bugs/problems did you encounter? How did you explore it? How did you get past it?
-
 ## Daily Reflections 2021-05-04 W8D2
 
-** Engage critically with your work and learning process.  Copy this page each day to do a short reflection on your progress.
-
-Daily summary of what you worked on & what you learned
-
-What went well?  What could be improved?
-
-What went badly?  What have you tried? What is next step?
-
-What observations do you have on the work done today? Yours? Others?
-
-What pointers or advice would you give someone who is facing the day you just had?  
-I wish I’d….
-
-What bugs/problems did you encounter? How did you explore it? How did you get past it?
+Fought quite a bit with the installation of postgress. Josh suggested that I might have installed it correctly in the beginning but just had permission issues with logging into a specific database. He added that you need to create a new user account and assign it specific permissions in order to interact with the database.
 
 To launch Postgres: sudo -i -u postgres
 
