@@ -114,7 +114,7 @@ Here is an examle of the output of this function after the data has been cleaned
 ## Daily Reflections 2021-05-08 W8D6
 
 - Spent some time down a rabbit hole of how to make a better markdown engineering journal. Installed a VS Code extension called [Paste Image](https://marketplace.visualstudio.com/items?itemName=mushan.vscode-paste-image) to allow me to drop screenshots right in with a shortcut (⌘⌥v)
-- Added notes in the form of [JSDoc](https://jsdoc.app/index.html) to the routes for the product api calls. 
+- Added notes in the form of [JSDoc](https://jsdoc.app/index.html) to the routes for the product api calls.
 - Modifying the project structure a bit to follow this example on the node-postgres documentation page. [Suggested Project Structure](https://node-postgres.com/guides/project-structure)
 
 - A VERY simple query took 0.422 ms. Off to a good start, but I'm sure it will only get more time consuming as I start joining tables...

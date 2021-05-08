@@ -1,21 +1,16 @@
+const express = require('express');
 const db = require('../db');
+
+const router = express.Router();
 
 const query = 'SELECT * FROM products WHERE product_id = $1';
 
-app.get('/:id', (req, res, next) => {
+router.get('/:id', (req, res, next) => {
   db.query(query, [req.params.product_id], (err, res) => {
     if (err) { return next(err); }
     return res.send(res.rows[0]);
   });
 });
-
-
-
-
-
-
-
-
 
 
 
@@ -55,3 +50,5 @@ const productStyles = (product_id) => {
 const relatedProducts = (product_id) => {
 
 };
+
+module.exports = router;

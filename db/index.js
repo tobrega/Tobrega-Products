@@ -2,14 +2,15 @@
 const { Pool } = require('pg');
 const config = require('../config');
 
+
 const pool = new Pool(config);
-const query = 'SELECT * FROM product WHERE product_id = 10';
 // const query = 'SELECT * FROM product WHERE product_id = 10';
+// const query = 'SELECT * FROM product LEFT JOIN features ON product.product_id = features.product_id WHERE product.product_id = 5';
+const query = 'SELECT * FROM features WHERE product_id = 5';
 
 module.exports = {
   query: (text, params, callback) => pool.query(text, params, callback),
 };
-
 
 pool.on('error', (err) => {
   console.error('Unexpected error on idle client', err);
