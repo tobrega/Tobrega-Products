@@ -20,7 +20,8 @@
   "homepage": "https://github.com/tobrega/Tobrega-Products#readme",
   "dependencies": {
     "express": "^4.17.1",
-    "morgan": "^1.10.0"
+    "morgan": "^1.10.0",
+    "pg": "^8.6.0"
   },
   "devDependencies": {
     "csv": "^5.5.0",

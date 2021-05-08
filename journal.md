@@ -42,6 +42,7 @@ Error Messages / Resources / New Techniques you learned, etc.
 - I wish I’d….
 - What bugs/problems did you encounter? How did you explore it? How did you get past it?
 
+---
 ## Daily Reflections 2021-05-03 W8D1
 
 - Good first day with the new group. We setup a lot of sytems. We were unclear on some of the - requirements. We could have asked clarifying questions sooner.
@@ -72,18 +73,28 @@ Psql postgres without the -U
 
 Spent a lot of time trying to determine how to best parse the csv data and save it back as a cleaned file.
 
-## Daily Reflections 2021-05-06 W8D4
-
 Csv-parse and csv-parser are ***NOT*** the same.
 
-Parsing a csv with mismatched quotes needs to be done by ignoring the quote character. Parse({quote:false}).
+Parsing a csv with mismatched quotes needs to be done by ignoring the quote character. `parse({quote:false})` and then replace all the quotes by using a regular expression since node doesn't allow for replaceAll (strangely).
+
+## Daily Reflections 2021-05-06 W8D4
+
+Before effective cleaning functions could be written, the problems in the data first had to understood. The cleaning funciton for each table was written to generate an object which reported information about the records. For example how many records had 3 fields and how many had 4. For fields that appeared to be numbers, what was the total number of records that were able to be converted into a number and did that match the total number of records. For records with only a few possibilities, like sizes ranging from XXS to XXL and 5 to 14 incrementing by 0.5, were there any skus that didn't fit this format? I also added a line to console log every 100,000 records so that I knew it was still running and not to interupt it.
+
+Here is an examle of the output of this function after the data has been cleaned:
+
+
+
+![](https://i.imgur.com/f72o1bH.png?1)
 
 ## Daily Reflections 2021-05-07 W8D5
 
-To start up the database:
+To start up the database as the default user:
 
     psql postgres
 https://www.postgresqltutorial.com/psql-commands/
+
+Create new users before creating the object because it seems permissions 
 
 To run a file from within postgres: 
 
@@ -91,7 +102,7 @@ To run a file from within postgres:
 
 With a filepath, it should be like this, but I wasn't able to get this to work...
 
-    \i \path\TO\file_name.sql
+    \i /Users/brentonhershner/sw/hr/SDC/Tobrega-Products/database/schema.sql;
 
 https://kb.objectrocket.com/postgresql/how-to-run-an-sql-file-in-postgres-846
 
@@ -129,4 +140,18 @@ Finally loaded the cleaned data. It took longer than I had hoped, but it's in an
 
 Starting to make requests and writing out the functions to match the specific API calls.
 
+Timing queries is actually really simple. Just run `\timing`
 
+[On pool vs client connections](https://stackoverflow.com/questions/48751505/how-can-i-choose-between-client-or-pool-for-node-postgres)
+
+
+
+---
+
+## Handy Dandy Links
+
+[Postgres Cheat Sheet](https://www.postgresqltutorial.com/postgresql-cheat-sheet/)
+
+[Postgres Cheat Sheet (pdf)](https://www.postgresqltutorial.com/wp-content/uploads/2018/03/PostgreSQL-Cheat-Sheet.pdf)
+
+[How to run an SQL file in Postgres](https://kb.objectrocket.com/postgresql/how-to-run-an-sql-file-in-postgres-846)
