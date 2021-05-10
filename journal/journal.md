@@ -61,8 +61,6 @@ What went badly?  What have you tried? What is next step?
 
 - Fought quite a bit with the installation of postgress. Josh suggested that I might have installed it correctly in the beginning but just had permission issues with logging into a specific database. He added that you need to create a new user account and assign it specific permissions in order to interact with the database.
 
-To launch Postgres: `Psql postgres` without the -U
-
 ## Daily Reflections 2021-05-05 W8D3
 
 - Spent a lot of time trying to determine how to best parse the csv data and save it back as a cleaned file.
@@ -79,7 +77,12 @@ Here is an examle of the output of this function after the data has been cleaned
 
 ## Daily Reflections 2021-05-07 W8D5
 
-- To start up the database as the default user:
+- To start up the postgres server:
+    `pg_ctl -D /usr/local/var/postgres start`
+
+[How to Start a PostgreSQL Server](https://dataschool.com/learn-sql/how-to-start-a-postgresql-server-on-mac-os-x/)
+
+- To run psql as the default user:
     `psql postgres`
 - To run a file from within postgres: `\i filename`
 - With a filepath [How to run an SQL file in Postgres](https://kb.objectrocket.com/postgresql/how-to-run-an-sql-file-in-postgres-846): `\i /Users/brentonhershner/sw/hr/SDC/Tobrega-Products/database/schema.sql;`
@@ -120,6 +123,23 @@ Here is an examle of the output of this function after the data has been cleaned
 - A VERY simple query took 0.422 ms. Off to a good start, but I'm sure it will only get more time consuming as I start joining tables...
     ![](./images/2021-05-08-13-04-02.png)
 
+## Daily Reflections 2021-05-10 W9D1
+
+- Spent some time testing different ways to organize the code and function calls. I'm trying to make sure it's clean and each function ends up where it makes the most sense.
+
+- Following the pg guide with async await queries, the first query is in the bag. What's the catch? This seems too easy. I must be missing something. Boiling it all down, this is the query definition: 
+
+```const query = async (text, params) => pool.query(text, params);```
+
+  ...and here is the code for the Product Information query:
+
+![](./images/2021-05-10-15-58-06.png)
+
+| Product_id | Response time |
+| --- | --- |
+| 50 | 111 ms |
+| 500000 | 109 ms |
+| 990000 | 116 ms |
 
 
 

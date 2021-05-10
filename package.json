@@ -4,8 +4,8 @@
   "description": "Backend API service for Project Catwalk",
   "main": "index.js",
   "scripts": {
-    "start": "node server/index.js",
-    "start:dev": "npx nodemon server/index.js",
+    "start": "node app.js",
+    "start:dev": "npx nodemon app.js",
     "test": "jest --coverage --watch"
   },
   "repository": {
@@ -20,6 +20,7 @@
   "homepage": "https://github.com/tobrega/Tobrega-Products#readme",
   "dependencies": {
     "express": "^4.17.1",
+    "express-promise-router": "^4.1.0",
     "morgan": "^1.10.0",
     "pg": "^8.6.0"
   },
