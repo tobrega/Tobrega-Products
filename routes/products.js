@@ -83,6 +83,24 @@ router.get('/:id/styles', async (req, res) => {
     //   WHERE product_id = $1
     // ) s
 
+
+
+
+    // (
+    //   SELECT array_to_json(array_agg(row_to_json(k)))
+    //   FROM (
+    //     SELECT
+    //       sku_id,
+    //       quantity,
+    //       size
+    //     FROM skus
+    //     WHERE skus.style_id = styles.style_id
+    //   ) k
+    // ) skus
+
+
+
+    
     
 
     const stylesQuery = await db.query(
@@ -98,6 +116,7 @@ router.get('/:id/styles', async (req, res) => {
               original_price,
               sale_price,
               default_style AS "default?",
+              
               (
                 SELECT array_to_json(array_agg(row_to_json(p)))
                 FROM (
@@ -107,8 +126,21 @@ router.get('/:id/styles', async (req, res) => {
                   FROM photos
                   WHERE photos.style_id = styles.style_id
                 ) p
-              ) photos
+              ) photos,
               
+              (
+                SELECT array_to_json(array_agg(row_to_json(k)))
+                FROM (
+                  SELECT
+                    sku_id,
+                    quantity,
+                    size
+                  FROM skus
+                  WHERE skus.style_id = styles.style_id
+                ) k
+              ) skus
+
+
             FROM styles
             WHERE product_id = $1
           ) s
