@@ -141,6 +141,27 @@ Here is an examle of the output of this function after the data has been cleaned
 | 500000 | 109 ms |
 | 990000 | 116 ms |
 
+- Most of my time today has been fighting to understand how to use and the differences between array_to_json, array_agg, row_to_json functions in postgresql queries.
+
+## Daily Reflections 2021-05-11 W9D2
+
+Pete shared with me a really great article about how to return JSON objects from PostgreSQL queries. It 
+[Query Nested Data in Postgres using Node.js](https://itnext.io/query-nested-data-in-postgres-using-node-js-35e985368ea4)
+
+Finally getting somewhere with my style query. 
+![](./images/2021-05-11-16-20-18.png)
+![](./images/2021-05-11-16-20-53.png)
+Response time for this query midway in the data uncached and without indexing is 200 ms.
+
+Alright. Now I've incorporated the photos but query times have gone way up. 2.5 seconds. 😳😬
+
+![](./images/2021-05-11-17-39-05.png)
+
+
+- Need load balances for each server endpoint. Need a load balancer to direct to different clients too.
+
+- k6 testing locally
+- loader.io for deployed testing
 
 
 
@@ -152,7 +173,6 @@ Here is an examle of the output of this function after the data has been cleaned
 - [Postgres Cheat Sheet (pdf)](https://www.postgresqltutorial.com/wp-content/uploads/2018/03/PostgreSQL-Cheat-Sheet.pdf)
 - [How to run an SQL file in Postgres](https://kb.objectrocket.com/postgresql/how-to-run-an-sql-file-in-postgres-846)
 - [17 Practial psql Commands That You Don't Want To Miss](https://www.postgresqltutorial.com/psql-commands/)
-
 
 
 
