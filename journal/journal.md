@@ -174,6 +174,8 @@ product_id:3
 | 2 queries | 80 ms |
 | 1 query | 84 ms |
 
+#### So close, but still no cigar...
+
 The query for related products is close... The query (below) is generating an object with "array_agg" as the key and the result I want as the value. I can't figure out how to just return the value out of this object by using SQL. Sure, it would be trivially easy to pull it out using javascript, but I didn't sign up for Hack Reactor to take the easy way out!!!
 
 ![](./images/2021-05-12-00-15-56.png)
