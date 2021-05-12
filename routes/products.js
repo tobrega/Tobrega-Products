@@ -4,19 +4,77 @@ const db = require('../db');
 
 const router = new Router();
 
+router.get('/', async (req, res) => {
+  console.log('get root');
+  const page = req.query.page || 1;
+  const count = req.query.count || 5;
+  const productListQuery = await db.query(`
+    SELECT array_to_json(array_agg(p)) AS products
+    FROM (
+      SELECT
+        product_id AS id,
+        name,
+        slogan,
+        description,
+        category,
+        default_price
+      FROM product
+      LIMIT $1 OFFSET $2
+    ) p
+  `, [count, page * count - count]);
+
+  //   const relatedQuery = await db.query(`
+  //   SELECT (array_agg(related_product_id))
+  //   FROM related
+  //   WHERE current_product_id = $1
+  // `, [productId]);
+
+  const productList = productListQuery.rows[0];
+  console.log(productList);
+  res.send(productList);
+});
+
 router.get('/:id', async (req, res) => {
   try {
     const productId = req.params.id;
-    const start = Date.now();
+    // const start = Date.now();
+
+    // // One Query
+    // const productInfoQuery = await db.query(`
+    // SELECT
+    //   product_id,
+    //   name,
+    //   slogan,
+    //   description,
+    //   category,
+    //   default_price,
+    //   (
+    //     SELECT array_to_json(array_agg(row_to_json(f))) as results
+    //     FROM (
+    //       SELECT
+    //         feature,
+    //         value
+    //       FROM features
+    //       WHERE product_id = $1
+    //     ) f
+    //   )
+    //   FROM product
+    //   WHERE product_id = $1
+    // `, [productId]);
+    // const productInfo = productInfoQuery.rows[0];
+
+    // Two Queries
     const [productInfoQuery, featuresQuery] = await Promise.all([
       db.query('SELECT * FROM product WHERE product_id = $1', [productId]),
       db.query('SELECT feature, value FROM features WHERE product_id = $1', [productId]),
     ]);
-    const duration = Date.now() - start;
     const features = featuresQuery.rows;
     const productInfo = { ...productInfoQuery.rows[0], features };
+
+    // const duration = Date.now() - start;
     res.send(productInfo);
-    console.log(`Executed queries in ${duration} ms`);
+    // console.log(productInfo);
+    // console.log(`Executed queries in ${duration} ms`);
   } catch (err) {
     console.error(err);
     throw err;
@@ -28,84 +86,9 @@ router.get('/:id/styles', async (req, res) => {
     console.log('getting styles');
     const productId = req.params.id;
     const start = Date.now();
-    // const stylesQuery = await db.query('SELECT * FROM styles s LEFT OUTER JOIN photos p ON s.style_id = p.style_id WHERE s.product_id = $1;', [productId]);
-    // const stylesQuery = await db.query('SELECT row_to_json(styles) FROM styles WHERE product_id = $1', [productId]);
-
-    // const stylesQuery = await db.query(
-    //   `SELECT row_to_json(t) 
-    //   FROM (
-    //     SELECT product_id
-    //       (
-    //         SELECT array_to_json(array_agg(row_to_json(p)))
-    //         FROM(
-    //           SELECT thumbnail_url, url
-    //           FROM photos
-    //           WHERE styles.id = photos.styleId
-    //         ) p
-    //       ) as photos
-    //     FROM styles
-    //     WHERE product_id = $1
-    //   ) t`
-    //   , [productId]);
-
-
-    // select array_to_json(array_agg(row_to_json(p))) as photos
-    // from (
-    //   SELECT thumbnail_url, url
-    //   FROM photos
-    //   WHERE style_id = $1
-    // ) p
-
-
-    // SELECT product.product_id,
-
-    // FROM product
-    // LEFT JOIN styles ON product.product_id = styles.product_id
-    // LEFT JOIN skus ON styles.style_id = skus.style_id
-    // WHERE product.product_id = $1
-
-    // SELECT skus.quantity, skus.size
-
-
-    // SELECT array_to_json(array_agg(row_to_json(s))) AS skus
-    
-    // SELECT array_agg(sku_id, 
-    //   SELECT quantity, size
-    //   FROM skus
-    //   WHERE style_id = $1
-    // ) as each
-    
-
-    // this returns an array of styles
-    // SELECT array_to_json(array_agg(row_to_json(s))) as results
-    // FROM (
-    //   SELECT * from styles
-    //   WHERE product_id = $1
-    // ) s
-
-
-
-
-    // (
-    //   SELECT array_to_json(array_agg(row_to_json(k)))
-    //   FROM (
-    //     SELECT
-    //       sku_id,
-    //       quantity,
-    //       size
-    //     FROM skus
-    //     WHERE skus.style_id = styles.style_id
-    //   ) k
-    // ) skus
-
-
-
-    
-    
 
     const stylesQuery = await db.query(
       `
-
       SELECT product_id, 
         (
           SELECT array_to_json(array_agg(row_to_json(s))) as results
@@ -116,7 +99,6 @@ router.get('/:id/styles', async (req, res) => {
               original_price,
               sale_price,
               default_style AS "default?",
-              
               (
                 SELECT array_to_json(array_agg(row_to_json(p)))
                 FROM (
@@ -127,9 +109,8 @@ router.get('/:id/styles', async (req, res) => {
                   WHERE photos.style_id = styles.style_id
                 ) p
               ) photos,
-              
               (
-                SELECT array_to_json(array_agg(row_to_json(k)))
+                SELECT json_object_agg(sku_id, json_build_object('quantity', quantity, 'size', size))
                 FROM (
                   SELECT
                     sku_id,
@@ -139,16 +120,13 @@ router.get('/:id/styles', async (req, res) => {
                   WHERE skus.style_id = styles.style_id
                 ) k
               ) skus
-
-
             FROM styles
             WHERE product_id = $1
           ) s
         )
       FROM styles
       WHERE product_id = $1
-
- `, [productId],
+`, [productId],
     );
 
     console.log(`It took ${Date.now() - start} ms to retrieve styles`);
@@ -171,13 +149,53 @@ router.get('/:id/styles', async (req, res) => {
   }
 });
 
-router.get('/', (req, res) => {
-  console.log('get root');
-  // db.query(query, [req.params.product_id], (err, res) => {
-  //   if (err) { return next(err); }
-  //   return res.send(res.rows[0]);
-  // });
-  res.send('get product root');
+router.get('/:id/related', async (req, res) => {
+  try {
+    console.log('getting related');
+    const productId = req.params.id;
+    const start = Date.now();
+
+    // const relatedQuery = await db.query(`
+    //   SELECT array_agg(row_to_json(r))
+    //   FROM (
+    //     SELECT related_product_id
+    //     FROM related
+    //     WHERE current_product_id = $1
+    //   ) r
+    // `, [productId]);
+
+    // const relatedQuery = await db.query(`
+    //   SELECT (array_agg(r))
+    //   FROM (
+    //     SELECT related_product_id
+    //     FROM related
+    //     WHERE current_product_id = $1
+    //   ) r
+    // `, [productId]);
+
+    // const relatedQuery = await db.query(`
+    //   SELECT (array_agg(related_product_id))
+    //   FROM related
+    //   WHERE current_product_id = $1
+    // `, [productId]);
+
+    const relatedQuery = await db.query(`
+      SELECT (array_agg(related_product_id))
+      FROM related
+      WHERE current_product_id = $1
+    `, [productId]);
+
+    const [related] = relatedQuery.rows;
+
+    console.log(`It took ${Date.now() - start} ms to retrieve related products`);
+    console.log(related);
+    console.log(JSON.stringify(related, null, 2));
+
+    res.send(related);
+  } catch (err) {
+    console.error(err);
+    throw err;
+  }
 });
 
 module.exports = router;

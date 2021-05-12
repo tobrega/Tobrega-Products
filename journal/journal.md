@@ -145,7 +145,8 @@ Here is an examle of the output of this function after the data has been cleaned
 
 ## Daily Reflections 2021-05-11 W9D2
 
-Pete shared with me a really great article about how to return JSON objects from PostgreSQL queries. It 
+Pete shared with me a really great article about how to return JSON objects from PostgreSQL queries. It really helped! Thanks Pete!!!
+
 [Query Nested Data in Postgres using Node.js](https://itnext.io/query-nested-data-in-postgres-using-node-js-35e985368ea4)
 
 Finally getting somewhere with my style query. 
@@ -156,6 +157,40 @@ Response time for this query midway in the data uncached and without indexing is
 Alright. Now I've incorporated the photos but query times have gone way up. 2.5 seconds. 😳😬
 
 ![](./images/2021-05-11-17-39-05.png)
+
+Had to use json_object_agg and json_build_object in order to finally get the query shape correct. Query time is 3.5 seconds without optimization or indexing.
+
+![](./images/2021-05-11-18-06-10.png)
+
+Seems really slow but I didn't think the product info was very slow. Product info is doing two queries and didn't see so relatively slow. I'm going to revisit the product info...
+
+ProductInfo  with a query to get most of the product info and then another query to fetch the features. Now I know enough that I can rewrite this to be returned in a single query.
+
+After some testing, it seems the difference is neglidgeable but actually faster to do 2 separate queries... Not what I expected but at least I'm getting better at nested queries!
+
+product_id:3
+| # of queries | Response time |
+| --- | --- |
+| 2 queries | 80 ms |
+| 1 query | 84 ms |
+
+The query for related products is close... The query (below) is generating an object with "array_agg" as the key and the result I want as the value. I can't figure out how to just return the value out of this object by using SQL. Sure, it would be trivially easy to pull it out using javascript, but I didn't sign up for Hack Reactor to take the easy way out!!!
+
+![](./images/2021-05-12-00-15-56.png)
+
+This is the query and it's result:
+
+![](./images/2021-05-12-00-16-42.png)
+
+List Products is similar. It's pretty much done. The pagination even works, but I can't figure out how to pull the value out of the object via SQL.. The following is the query and result.
+
+![](./images/2021-05-12-00-19-26.png)
+
+![](./images/2021-05-12-00-23-24.png)
+
+## Daily Reflections 2021-05-12 W9D3
+
+
 
 
 - Need load balances for each server endpoint. Need a load balancer to direct to different clients too.
