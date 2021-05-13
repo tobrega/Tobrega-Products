@@ -1,7 +1,7 @@
-test('adds 1 + 2 to equal 3', () => {
-  expect((1 + 2)).toBe(3);
-});
+// const loadTesting = require('./loadTesting');
 
-test('true to be truthy', () => {
-  expect(true).toBeTruthy();
-});
+// test('true to be truthy', () => {
+//   expect(true).toBeTruthy();
+// });
+
+

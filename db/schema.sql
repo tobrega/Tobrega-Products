@@ -50,6 +50,8 @@ CREATE TABLE IF NOT EXISTS skus (
   quantity SMALLINT
 );
 
+CREATE UNIQUE INDEX product_id_index ON product (product_id);
+
 COPY product FROM '/Users/brentonhershner/sw/hr/SDC/Tobrega-Products/data/cleaned/product.csv' WITH delimiter ',' NULL AS 'null' csv header;
 COPY related FROM '/Users/brentonhershner/sw/hr/SDC/Tobrega-Products/data/cleaned/related.csv' WITH delimiter ',' NULL AS 'null' csv header;
 COPY features FROM '/Users/brentonhershner/sw/hr/SDC/Tobrega-Products/data/cleaned/features.csv' WITH delimiter ',' NULL AS 'null' csv header;

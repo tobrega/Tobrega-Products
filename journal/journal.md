@@ -192,15 +192,44 @@ List Products is similar. It's pretty much done. The pagination even works, but 
 
 ## Daily Reflections 2021-05-12 W9D3
 
+I give up trying to return just an array. I've tried about 10 different ways but can't figure it out.
+
+Starting to test:
+
+|  | Product | Styles | Related |
+| --- | --- | --- | --- |
+| rows | 997483 | 1958101 | 1136021 |
+| last product_id | 1000011 | 1000011 | 296448 |
+
+
+| Description      | k6 avg pre-index | k6 avg w/indexing |
+| ---------------- | ------ | --- |
+| List Products    | 213 ms  |  |
+| Product Info     | 283 ms |  |
+| Product Styles   | 4.74 s |  |
+| Related Products | 159 ms |  |
+
+### k6 testing locally
+
+    brew  install k6
+
+Following k6's documentation:
+
+![](./images/2021-05-12-15-28-43.png)
+
+resulted in this, very poor performance...
+
+![](./images/2021-05-12-15-29-46.png)
 
 
 
 - Need load balances for each server endpoint. Need a load balancer to direct to different clients too.
 
-- k6 testing locally
 - loader.io for deployed testing
 
+And I think I randomly found what I was looking for to just return the value and not an object with a key value pair. This is from the [pg documentaiton](https://node-postgres.com/features/queries)
 
+![](./images/2021-05-12-15-54-23.png)
 
 ---
 
