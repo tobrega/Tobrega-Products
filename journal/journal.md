@@ -275,11 +275,116 @@ This problem does seem to be caused by the server because the query when copied 
 
 ![](./images/2021-05-13-09-56-33.png)
 
+EXPLAIN ANALYZE gave me this result when running through the server (**4112.808 ms**):
+
+![](./images/2021-05-13-10-59-35.png)
+
+EXPLAIN ANALYZE analysis is below:
+
+      EXPLAIN ANALYZE SELECT product_id,
+        (
+          SELECT array_to_json(array_agg(row_to_json(s))) as results
+          FROM (
+            SELECT
+              style_id,
+              name,
+              original_price,
+              sale_price,
+              default_style AS "default?",
+              (
+                SELECT array_to_json(array_agg(row_to_json(p)))
+                FROM (
+                  SELECT
+                    thumbnail_url,
+                    url
+                  FROM photos
+                  WHERE photos.style_id = styles.style_id
+                ) p
+              ) photos,
+              (
+                SELECT json_object_agg(sku_id, json_build_object('quantity', quantity, 'size', size))
+                FROM (
+                  SELECT
+                    sku_id,
+                    quantity,
+                    size
+                  FROM skus
+                  WHERE skus.style_id = styles.style_id
+                ) k
+              ) skus
+            FROM styles
+            WHERE product_id = 1
+          ) s
+        )
+      FROM styles
+      WHERE product_id = 1;
+
+EXPLAIN ANALYZE from the above query using psql (**0.336 ms**)
+
+     QUERY PLAN
+     Index Only Scan using product_id_styles_index on styles  (cost=60.61..64.66 rows=3 width=36) (actual time=0.273..0.276 rows=6 loops=1)
+       Index Cond: (product_id = 1)
+       Heap Fetches: 0
+       InitPlan 3 (returns $2)
+         ->  Aggregate  (cost=60.17..60.18 rows=1 width=32) (actual time=0.255..0.256 rows=1 loops=1)
+               ->  Index Scan using product_id_styles_index on styles styles_1  (cost=0.43..8.48 rows=3 width=27) (actual time=0.007..0.009 rows=6 loops=1)
+                     Index Cond: (product_id = 1)
+               SubPlan 1
+                 ->  Aggregate  (cost=8.61..8.62 rows=1 width=32) (actual time=0.017..0.017 rows=1 loops=6)
+                       ->  Index Scan using style_id_photos_index on photos  (cost=0.43..8.57 rows=8 width=255) (actual time=0.003..0.004 rows=6 loops=6)
+                             Index Cond: (style_id = styles_1.style_id)
+               SubPlan 2
+                 ->  Aggregate  (cost=8.59..8.60 rows=1 width=32) (actual time=0.011..0.011 rows=1 loops=6)
+                       ->  Index Scan using style_id_skus_index on skus  (cost=0.43..8.55 rows=7 width=9) (actual time=0.002..0.003 rows=6 loops=6)
+                             Index Cond: (style_id = styles_1.style_id)
+    Planning Time: 0.230 ms
+    Execution Time: 0.336 ms
+    (17 rows)
+
+[Analysis from explain.depesz.com](https://explain.depesz.com/s/VQ8R)
+
+![](./images/2021-05-13-11-06-07.png)
+
+![](./images/2021-05-13-11-21-05.png)
+
+EXPLAIN ANALYZE from the above query using pg (**4112.8 ms**)
+
+    QUERY PLAN
+      Gather  (cost=577195.36..602205.04 rows=3 width=36) (actual time=4087.431..4112.742 rows=6 loops=1)
+       Workers Planned: 2
+       Params Evaluated: $3
+       Workers Launched: 2
+       InitPlan 3 (returns $3)
+          ->  Aggregate  (cost=576195.34..576195.36 rows=1 width=32) (actual time=4036.038..4036.147 rows=1 loops=1)
+                ->  Gather  (cost=1000.00..26009.68 rows=3 width=27) (actual time=294.142..294.266 rows=6 loops=1)
+                     Workers Planned: 2
+                     Workers Launched: 2
+                      ->  Parallel Seq Scan on styles styles_1  (cost=0.00..25009.38 rows=1 width=27) (actual time=280.065..292.577 rows=2 loops=3)
+                           Filter: (product_id = 1)
+                            Rows Removed by Filter: 651094
+               SubPlan 1
+                  ->  Aggregate  (cost=130424.34..130424.35 rows=1 width=32) (actual time=419.956..419.956 rows=1 loops=6)
+                        ->  Seq Scan on photos  (cost=0.00..130424.30 rows=8 width=255) (actual time=192.459..419.920 rows=6 loops=6)
+                              Filter: (style_id = styles_1.style_id)
+                              Rows Removed by Filter: 2639100
+               SubPlan 2
+                  ->  Aggregate  (cost=52970.85..52970.86 rows=1 width=32) (actual time=203.637..203.638 rows=1 loops=6)
+                        ->  Seq Scan on skus  (cost=0.00..52970.81 rows=7 width=9) (actual time=194.412..203.610 rows=6 loops=6)
+                              Filter: (style_id = styles_1.style_id)
+                              Rows Removed by Filter: 2954299
+        ->  Parallel Seq Scan on styles  (cost=0.00..25009.38 rows=1 width=36) (actual time=62.132..69.130 rows=2 loops=3)
+             Filter: (product_id = 1)
+             Rows Removed by Filter: 651094
+     Planning Time: 0.193 ms
+     Execution Time: 4112.808 ms
+
+[Analysis from explain.depesz.com](https://explain.depesz.com/s/540j)
+
+![](./images/2021-05-13-11-18-09.png)
+
+![](./images/2021-05-13-11-21-52.png)
 
 
-
-
-For other problems, this site might be helpful for determining why some queries take longer than others. [explain.depesz.com](https://explain.depesz.com/)
 
 Things I've tried to speed up the queries.
 - Indexing on all primary keys and any place where a column is used to filter.
@@ -298,9 +403,13 @@ Other activities today: AWS account created. Spun up an EC2 instance but the key
 
 .cer vs .pem file - Turns out it seems like [either is ok.](https://stackoverflow.com/questions/23225112/amazon-aws-ec2-getting-a-cer-file-instead-of-pem/23595139) Further, at the suggestion of my group mates, I opened the .cer file up in a text editor and it appears to be in the same format as .pem. I'll try the .cer file directly first and if it doesn't work, rename it as .pem.
 
+This is how I'm setting up my AWS EC2 instance:
 
+![](./images/2021-05-13-10-44-39.png)
 
+This seems unimportant, but I'm adding it here so I remember what it looks like before I download the wrong file...
 
+![](./images/2021-05-13-10-48-34.png)
 
 ---
 
@@ -320,45 +429,3 @@ And I think I randomly found what I was looking for to just return the value and
 - [Postgres Cheat Sheet (pdf)](https://www.postgresqltutorial.com/wp-content/uploads/2018/03/PostgreSQL-Cheat-Sheet.pdf)
 - [How to run an SQL file in Postgres](https://kb.objectrocket.com/postgresql/how-to-run-an-sql-file-in-postgres-846)
 - [17 Practial psql Commands That You Don't Want To Miss](https://www.postgresqltutorial.com/psql-commands/)
-
-
-
-
-
-SELECT product_id, 
-  (
-    SELECT array_to_json(array_agg(row_to_json(s))) as results
-    FROM (
-      SELECT
-        style_id,
-        name,
-        original_price,
-        sale_price,
-        default_style AS "default?",
-        (
-          SELECT array_to_json(array_agg(row_to_json(p)))
-          FROM (
-            SELECT
-              thumbnail_url,
-              url
-            FROM photos
-            WHERE photos.style_id = styles.style_id
-          ) p
-        ) photos,
-        (
-          SELECT json_object_agg(sku_id, json_build_object('quantity', quantity, 'size', size))
-          FROM (
-            SELECT
-              sku_id,
-              quantity,
-              size
-            FROM skus
-            WHERE skus.style_id = styles.style_id
-          ) k
-        ) skus
-      FROM styles
-      WHERE product_id = 1
-    ) s
-  )
-FROM styles
-WHERE product_id = 1;
