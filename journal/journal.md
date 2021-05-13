@@ -290,18 +290,19 @@ Things I've tried to speed up the queries.
 
 My plan is to just deploy what I have and book office hours to try to figure out why it's so slow and what I can do to speed the queries up...
 
-AWS account created. Spun up an EC2 instance but the key downloaded was a .cer file and not a .pem file. I might have missed an option somewhere. There are scripts people have dropped in stack overflow to convert .cer files into .pem files but the two I tried didn't work. Hopefully I didn't just install a bitcoin miner on my local machine... 😬 It's now 11:30pm. 😴 I'm going to start over in the morning.
+---
+
+Other activities today: AWS account created. Spun up an EC2 instance but the key downloaded was a .cer file and not a .pem file. I might have missed an option somewhere. There are scripts people have dropped in stack overflow to convert .cer files into .pem files but the two I tried didn't work. Hopefully I didn't just install a bitcoin miner on my local machine... 😬 It's now 11:30pm. 😴 I'm going to start over in the morning.
 
 ## Daily Reflections 2021-05-13 W9D4
 
-.cer vs .pem file - Turns out it seems like [either is ok.](https://stackoverflow.com/questions/23225112/amazon-aws-ec2-getting-a-cer-file-instead-of-pem/23595139)
+.cer vs .pem file - Turns out it seems like [either is ok.](https://stackoverflow.com/questions/23225112/amazon-aws-ec2-getting-a-cer-file-instead-of-pem/23595139) Further, at the suggestion of my group mates, I opened the .cer file up in a text editor and it appears to be in the same format as .pem. I'll try the .cer file directly first and if it doesn't work, rename it as .pem.
 
 
 
 
 
 ---
-
 
 Need load balances for each server endpoint. Need a load balancer to direct to different clients too.
 
