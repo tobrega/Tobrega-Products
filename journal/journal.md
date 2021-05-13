@@ -204,10 +204,10 @@ Starting to test:
 
 | Description      | k6 avg pre-index | k6 avg w/indexing |
 | ---------------- | ------ | --- |
-| List Products    | 213 ms  |  |
-| Product Info     | 283 ms |  |
-| Product Styles   | 4.74 s |  |
-| Related Products | 159 ms |  |
+| List Products    | 213 ms  | 289 ms |
+| Product Info     | 283 ms | 297 ms |
+| Product Styles   | 4.74 s | 4.22 s |
+| Related Products | 159 ms | 204 ms |
 
 ### k6 testing locally
 
@@ -221,11 +221,27 @@ resulted in this, very poor performance...
 
 ![](./images/2021-05-12-15-29-46.png)
 
+This site might be helpful for determining why it's so slow [explain.depesz.com](https://explain.depesz.com/)
+
+Things I've tried to speed up the queries.
+- Indexing on all primary keys and any place where a column is used to filter.
+- Removing the 'express-promise-router'
+- Eliminating routes altogether and just writing the query directly in the server.
+- Simplifying the query to the very basics. Even a simple `SELECT * FROM product WHERE product_id = 1` takes 35 ms. How in the WORLD are we supoosed to get a complex query with joins under 10 ms?!?!?!
+  - Unless... Maybe it's not the query or database afterall... When running a query with EXPLAIN ANALYZE before the query string, the same query reportedly took 0.053 ms to plan and 0.030 ms to execute... It's similar when running that simple query in the postgres terminal. Something weird might be going on with the pg pool... Or we are just measuring the wrong thing (i.e. the 50 ms requirement might be the query and not the time expected for the database to return results...)
 
 
-- Need load balances for each server endpoint. Need a load balancer to direct to different clients too.
 
-- loader.io for deployed testing
+
+
+
+
+
+
+
+Need load balances for each server endpoint. Need a load balancer to direct to different clients too.
+
+loader.io for deployed testing
 
 And I think I randomly found what I was looking for to just return the value and not an object with a key value pair. This is from the [pg documentaiton](https://node-postgres.com/features/queries)
 
@@ -239,6 +255,7 @@ And I think I randomly found what I was looking for to just return the value and
 - [Postgres Cheat Sheet (pdf)](https://www.postgresqltutorial.com/wp-content/uploads/2018/03/PostgreSQL-Cheat-Sheet.pdf)
 - [How to run an SQL file in Postgres](https://kb.objectrocket.com/postgresql/how-to-run-an-sql-file-in-postgres-846)
 - [17 Practial psql Commands That You Don't Want To Miss](https://www.postgresqltutorial.com/psql-commands/)
+
 
 
 
