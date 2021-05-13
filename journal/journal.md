@@ -131,7 +131,9 @@ Here is an examle of the output of this function after the data has been cleaned
 
 ```const query = async (text, params) => pool.query(text, params);```
 
-  ...and here is the code for the Product Information query:
+  ...and here is the code for the Product Information query. This actually uses two queries instead of one. I tested it both ways and the double query was slightly faster.:
+
+![](./images/2021-05-13-09-35-07.png)
 
 ![](./images/2021-05-10-15-58-06.png)
 
@@ -149,9 +151,12 @@ Pete shared with me a really great article about how to return JSON objects from
 
 [Query Nested Data in Postgres using Node.js](https://itnext.io/query-nested-data-in-postgres-using-node-js-35e985368ea4)
 
-Finally getting somewhere with my style query. 
+Finally getting somewhere with my style query.
+
 ![](./images/2021-05-11-16-20-18.png)
+
 ![](./images/2021-05-11-16-20-53.png)
+
 Response time for this query midway in the data uncached and without indexing is 200 ms.
 
 Alright. Now I've incorporated the photos but query times have gone way up. 2.5 seconds. 😳😬
@@ -221,22 +226,78 @@ resulted in this, very poor performance...
 
 ![](./images/2021-05-12-15-29-46.png)
 
-This site might be helpful for determining why it's so slow [explain.depesz.com](https://explain.depesz.com/)
+### Summary of query speed problem
+
+All queries are about 1000 times slower when using the server when compared to running in the postgres terminal.
+
+Here is the all in one query for styles:
+
+![](./images/2021-05-13-09-23-28.png)
+
+This is the schema and how it's indexed:
+
+![](./images/2021-05-13-09-44-49.png)!
+
+This is how the database is being connected to:
+
+![](./images/2021-05-13-09-37-46.png)
+
+This is the database config file. I've tried increaseing the number of clients for the pool and increasing the idle and connection timeouts to no effect:
+
+![](./images/2021-05-13-09-39-02.png)
+
+This is how I've setup my server. I've also tried to write my queries directly in this file to avoid routing altogether to no avail...:
+
+![](./images/2021-05-13-09-40-26.png)
+
+I'm load testing by hitting a random style within +/- 2.5 percentile from three points in the database (5th percentile, 50th percentile, and 95th percentile).
+
+![](./images/2021-05-13-09-47-14.png)
+
+Here is the result in k6:
+
+![](./images/2021-05-13-09-49-29.png)
+
+And here are the console logs from the morgan middleware, which I've tried to disable to see if that was the problem. Narrator: "It was not":
+
+![](./images/2021-05-13-09-49-19.png)
+
+At someone's suggestion, I tried postman too to see if it was any different. Same.
+
+![](./images/2021-05-13-09-54-09.png)
+
+This problem does seem to be caused by the server because the query when copied and pasted into the postgres terminal, it returns results in ***one-thousanth*** of the time **(4.160 ms)**.
+
+![](./images/2021-05-13-09-57-06.png)
+
+![](./images/2021-05-13-09-56-33.png)
+
+
+
+
+
+For other problems, this site might be helpful for determining why some queries take longer than others. [explain.depesz.com](https://explain.depesz.com/)
 
 Things I've tried to speed up the queries.
 - Indexing on all primary keys and any place where a column is used to filter.
 - Removing the 'express-promise-router'
 - Eliminating routes altogether and just writing the query directly in the server.
-- Simplifying the query to the very basics. Even a simple `SELECT * FROM product WHERE product_id = 1` takes 35 ms. How in the WORLD are we supoosed to get a complex query with joins under 10 ms?!?!?!
+- Simplifying the query to the very basics. Even a simple `SELECT * FROM product WHERE product_id = 1` takes 35 ms. How in the WORLD are we supoosed to get a complex query with subqueries or joins under 10 ms?!?!?!
   - Unless... Maybe it's not the query or database afterall... When running a query with EXPLAIN ANALYZE before the query string, the same query reportedly took 0.053 ms to plan and 0.030 ms to execute... It's similar when running that simple query in the postgres terminal. Something weird might be going on with the pg pool... Or we are just measuring the wrong thing (i.e. the 50 ms requirement might be the query and not the time expected for the database to return results...)
 
+My plan is to just deploy what I have and book office hours to try to figure out why it's so slow and what I can do to speed the queries up...
+
+AWS account created. Spun up an EC2 instance but the key downloaded was a .cer file and not a .pem file. I might have missed an option somewhere. There are scripts people have dropped in stack overflow to convert .cer files into .pem files but the two I tried didn't work. Hopefully I didn't just install a bitcoin miner on my local machine... 😬 It's now 11:30pm. 😴 I'm going to start over in the morning.
+
+## Daily Reflections 2021-05-13 W9D4
+
+.cer vs .pem file - Turns out it seems like [either is ok.](https://stackoverflow.com/questions/23225112/amazon-aws-ec2-getting-a-cer-file-instead-of-pem/23595139)
 
 
 
 
 
-
-
+---
 
 
 Need load balances for each server endpoint. Need a load balancer to direct to different clients too.
@@ -260,3 +321,40 @@ And I think I randomly found what I was looking for to just return the value and
 
 
 
+SELECT product_id, 
+  (
+    SELECT array_to_json(array_agg(row_to_json(s))) as results
+    FROM (
+      SELECT
+        style_id,
+        name,
+        original_price,
+        sale_price,
+        default_style AS "default?",
+        (
+          SELECT array_to_json(array_agg(row_to_json(p)))
+          FROM (
+            SELECT
+              thumbnail_url,
+              url
+            FROM photos
+            WHERE photos.style_id = styles.style_id
+          ) p
+        ) photos,
+        (
+          SELECT json_object_agg(sku_id, json_build_object('quantity', quantity, 'size', size))
+          FROM (
+            SELECT
+              sku_id,
+              quantity,
+              size
+            FROM skus
+            WHERE skus.style_id = styles.style_id
+          ) k
+        ) skus
+      FROM styles
+      WHERE product_id = 1
+    ) s
+  )
+FROM styles
+WHERE product_id = 1;

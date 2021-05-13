@@ -3,6 +3,26 @@ const db = require('../db');
 
 const router = new Router();
 
+router.get('/testquery', async (req, res) => {
+  const queryString = `
+  SELECT * FROM product
+  WHERE product_id = $1;
+  `;
+
+  const productListQuery = await db.query(queryString);
+
+  //   const relatedQuery = await db.query(`
+  //   SELECT (array_agg(related_product_id))
+  //   FROM related
+  //   WHERE current_product_id = $1
+  // `, [productId]);
+
+  const productList = productListQuery.rows[0].array_to_json;
+  // console.log(productList);
+  res.send(productList);
+});
+
+
 router.get('/', async (req, res) => {
   const page = req.query.page || 1;
   const count = req.query.count || 5;
@@ -21,12 +41,6 @@ router.get('/', async (req, res) => {
     ) p;
   `, [count, page * count - count]);
 
-  //   const relatedQuery = await db.query(`
-  //   SELECT (array_agg(related_product_id))
-  //   FROM related
-  //   WHERE current_product_id = $1
-  // `, [productId]);
-
   const productList = productListQuery.rows[0].array_to_json;
   // console.log(productList);
   res.send(productList);
@@ -37,31 +51,6 @@ router.get('/:id', async (req, res) => {
     const productId = req.params.id;
     // const start = Date.now();
 
-    // // One Query
-    // const productInfoQuery = await db.query(`
-    // SELECT
-    //   product_id,
-    //   name,
-    //   slogan,
-    //   description,
-    //   category,
-    //   default_price,
-    //   (
-    //     SELECT array_to_json(array_agg(row_to_json(f))) as results
-    //     FROM (
-    //       SELECT
-    //         feature,
-    //         value
-    //       FROM features
-    //       WHERE product_id = $1
-    //     ) f
-    //   )
-    //   FROM product
-    //   WHERE product_id = $1
-    // `, [productId]);
-    // const productInfo = productInfoQuery.rows[0];
-
-    // Two Queries
     const [productInfoQuery, featuresQuery] = await Promise.all([
       db.query('SELECT * FROM product WHERE product_id = $1', [productId]),
       db.query('SELECT feature, value FROM features WHERE product_id = $1', [productId]),
@@ -123,18 +112,14 @@ router.get('/:id/styles', async (req, res) => {
     FROM styles
     WHERE product_id = $1;
     `;
-    // const queryString = `
-    // SELECT * FROM product
-    // WHERE product_id = $1;
-    // `;
 
     const stylesQuery = await db.query(queryString, [productId]);
 
     const styles = stylesQuery.rows[0];
     // console.log(`Retrieving styles took ${Date.now() - start} ms`);
     // console.log(JSON.stringify(styles, null, 2));
+    res.status(200).send(styles);
 
-    res.send(styles);
     // const stylesExplainer = await db.query(`EXPLAIN ANALYZE ${queryString}`, [productId]);
     // console.log(stylesExplainer.rows);
   } catch (err) {
@@ -146,86 +131,15 @@ router.get('/:id/styles', async (req, res) => {
 router.get('/:id/related', async (req, res) => {
   try {
     const productId = req.params.id;
-    const start = Date.now();
-
-    /*
-
-    SELECT array_agg(row_to_json(r))
-    FROM (
-      SELECT related_product_id
-      FROM related
-      WHERE current_product_id = $1
-    ) r
-    //  returns {
-      "array_agg": [
-        {"related_product_id": 2},
-        {"related_product_id": 3},
-        {"related_product_id": 8},
-        {"related_product_id": 7}
-      ]
-    }
-
-    SELECT (array_agg(r))
-    FROM (
-      SELECT related_product_id
-      FROM related
-      WHERE current_product_id = $1
-    ) r
-    //  returns {"array_agg":"{(2),(3),(8),(7)}"}
-
-    SELECT related_product_id
-    FROM related
-    WHERE current_product_id = $1
-    //  returns {"related_product_id":2}
-
-    SELECT (array_agg(related_product_id))
-    FROM related
-    WHERE current_product_id = $1
-    //  returns {"array_agg":[2,3,8,7]}
-
+    // const start = Date.now();
+    const queryString = `
     SELECT ARRAY(
       SELECT related_product_id
       FROM related
       WHERE current_product_id = $1
     )
-    // returns {"array":[2,3,8,7]}
-
-    SELECT ARRAY(r)
-    FROM (
-      SELECT related_product_id
-      FROM related
-      WHERE current_product_id = $1
-    ) r
-    //  returns error
-
-      SELECT ARRAY(
-        SELECT json_extract_path_text(r, 'array') FROM
-        json_array_elements(
-          (SELECT related_product_id
-          FROM related
-          WHERE current_product_id = $1)::json->'array'
-        as r)
-      )
-      // returns error
-
-      SELECT ARRAY (json_array_elements(
-        SELECT related_product_id
-        FROM related
-        WHERE current_product_id = $1
-      )
-      //  returns error
-
-    */
-
-    const relatedQuery = await db.query(
-      `
-      SELECT ARRAY(
-        SELECT related_product_id
-        FROM related
-        WHERE current_product_id = $1
-      )
-        `, [productId],
-    );
+      `;
+    const relatedQuery = await db.query(queryString, [productId]);
 
     const related = relatedQuery.rows[0].array;
 
@@ -241,4 +155,3 @@ router.get('/:id/related', async (req, res) => {
 });
 
 module.exports = router;
-
