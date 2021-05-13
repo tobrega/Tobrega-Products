@@ -6,7 +6,8 @@
   "scripts": {
     "start": "node app.js",
     "start:dev": "npx nodemon app.js",
-    "test": "jest --coverage --watch"
+    "test": "jest --coverage --watch",
+    "journal": "git add journal/ && git commit journal/ -m 'update journal' && git push"
   },
   "repository": {
     "type": "git",

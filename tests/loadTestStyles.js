@@ -11,9 +11,10 @@ export default () => {
   const range = 0.05;
   const max = 1000000;
 
-  targetPercentiles.forEach((percentile) => {
-    const random = Math.floor(max * range * (Math.random() + percentile / range - 0.5));
-    http.get(`http://localhost:3000/products/${random}/styles`);
-    sleep(1);
-  });
+  const random = 1;
+  // targetPercentiles.forEach((percentile) => {
+  //   const random = Math.floor(max * range * (Math.random() + percentile / range - 0.5));
+  http.get(`http://localhost:3000/products/${random}/styles`);
+  sleep(1);
+  // });
 };

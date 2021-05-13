@@ -121,7 +121,8 @@ router.get('/:id/styles', async (req, res) => {
     res.status(200).send(styles);
 
     // const stylesExplainer = await db.query(`EXPLAIN ANALYZE ${queryString}`, [productId]);
-    // console.log(stylesExplainer.rows);
+    // console.log(stylesExplainer);
+
   } catch (err) {
     console.error(err);
     throw err;
