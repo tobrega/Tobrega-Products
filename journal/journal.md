@@ -109,7 +109,6 @@ Here is an examle of the output of this function after the data has been cleaned
 
 - Finally loaded the cleaned data. It took longer than I had hoped, but it's in and it loads in amazingly fast.
 
-    ![](https://i.imgur.com/gCz8Ooj.png)
 - Starting to make requests and writing out the functions to match the specific API calls.
 - Timing queries is actually really simple. Just run `\timing`
 - [On pool vs client connections](https://stackoverflow.com/questions/48751505/how-can-i-choose-between-client-or-pool-for-node-postgres)
@@ -131,9 +130,7 @@ Here is an examle of the output of this function after the data has been cleaned
 
 ```const query = async (text, params) => pool.query(text, params);```
 
-  ...and here is the code for the Product Information query. This actually uses two queries instead of one. I tested it both ways and the double query was slightly faster.:
-
-![](./images/2021-05-13-09-35-07.png)
+  ...and here is the code for the Product Information query:
 
 ![](./images/2021-05-10-15-58-06.png)
 
@@ -170,6 +167,8 @@ Had to use json_object_agg and json_build_object in order to finally get the que
 Seems really slow but I didn't think the product info was very slow. Product info is doing two queries and didn't see so relatively slow. I'm going to revisit the product info...
 
 ProductInfo  with a query to get most of the product info and then another query to fetch the features. Now I know enough that I can rewrite this to be returned in a single query.
+
+![](./images/2021-05-13-09-35-07.png)
 
 After some testing, it seems the difference is neglidgeable but actually faster to do 2 separate queries... Not what I expected but at least I'm getting better at nested queries!
 
@@ -225,6 +224,10 @@ Following k6's documentation:
 resulted in this, very poor performance...
 
 ![](./images/2021-05-12-15-29-46.png)
+
+I believe I figured out why I couldn't return just an array but an object with the array I want as a value of that object... I believe it has to do with the rowMode option within node-postgres (pg). A description of it is in the [documentation](https://node-postgres.com/features/queries).
+
+![](./images/2021-05-13-10-28-32.png)
 
 ### Summary of query speed problem
 
