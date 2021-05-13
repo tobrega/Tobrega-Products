@@ -411,6 +411,16 @@ This seems unimportant, but I'm adding it here so I remember what it looks like 
 
 ![](./images/2021-05-13-10-48-34.png)
 
+I'm forced to download a .cer file instead of a .pem file. I can rename the file and change the extension, but it doesn't seem to work. I keep getting a messages that says it's a public key even though when I open the private key with a text editor, it states -BEGIN RSA PRIVATE KEY-. Yes, I did the chmod 400 thing to lock it's permissions.
+
+I ended up creating a new instance and changed the file format while saving to "all files" and naming the key with .pem. That worked.
+
+There was some speculation that the async/await or routers might be causing the slow down. To test this, I copied and pasted the query directy into the server index file and wrote the query as a promise and chained .then() to it.The result was still poor. 4.4 seconds. The code is as follows:
+
+![](./images/2021-05-13-15-52-57.png)
+
+
+
 ---
 
 Need load balances for each server endpoint. Need a load balancer to direct to different clients too.
