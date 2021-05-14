@@ -436,6 +436,42 @@ ACTUAL results of pre and post indexing with 10 vus, 30s duration, 1 s sleep, an
 
 ---
 
+login to EC2 instance
+
+ssh -i "SDC.pem" ubuntu@ec2-35-167-245-107.us-west-2.compute.amazonaws.com
+
+to exit ssh, exit then enter or ctrl+d
+
+[Here](https://betterprogramming.pub/how-to-provision-a-cheap-postgresql-database-in-aws-ec2-9984ff3ddaea) is a really great guide I followed to install postgres onto an EC2 instance.
+
+Refresh Ubuntu packages: `sudo apt-get update -y && sudo apt-get upgrade -y`
+Install Postgres: `sudo apt install postgresql -y`
+
+To login to the server: `sudo -i -u postgres`
+
+Create a user and add permissions: 
+
+```
+psql -U postgres -c "CREATE ROLE username;"
+psql -U postgres -c "ALTER ROLE  username  WITH LOGIN;"
+psql -U postgres -c "ALTER USER  username  CREATEDB;"
+psql -U postgres -c "ALTER USER  username  WITH PASSWORD 'notActualPassword';"
+exit
+```
+
+Navigate to postgresql.conf file at `/etc/postgresql/12/main/postgresql.conf`. 
+
+Change  `sudo nano postgresql.conf` Allow the Postgres server to listen on the DNS name of the EC2 instance. Uncomment listen_addresses and change it's value to = '*'.
+
+Change  `sudo nano pg_hba.conf` Allow authentications from remote connections. Change IP addresses to 0.0.0.0/0 and ::/0. Uncomment listen_addresses and change it's value to = '*'.
+
+Restart postgres: `sudo systemctl restart postgresql`
+
+
+
+
+
+
 Need load balances for each server endpoint. Need a load balancer to direct to different clients too.
 
 loader.io for deployed testing
