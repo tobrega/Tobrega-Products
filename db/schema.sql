@@ -52,10 +52,12 @@ CREATE TABLE IF NOT EXISTS skus (
 
 DROP INDEX IF EXISTS product_id_index;
 DROP INDEX IF EXISTS product_id_styles_index;
+DROP INDEX IF EXISTS style_id_styles_index;
 DROP INDEX IF EXISTS style_id_photos_index;
 DROP INDEX IF EXISTS style_id_skus_index;
 DROP INDEX IF EXISTS product_id_features_index;
 DROP INDEX IF EXISTS current_product_id_related_index;
+DROP INDEX IF EXISTS related_product_id_related_index;
 
 CREATE UNIQUE INDEX product_id_index ON product(product_id ASC);
 CREATE INDEX product_id_styles_index ON styles(product_id ASC);
@@ -64,10 +66,11 @@ CREATE INDEX style_id_photos_index ON photos(style_id ASC);
 CREATE INDEX style_id_skus_index ON skus(style_id ASC);
 CREATE INDEX product_id_features_index ON features(product_id ASC);
 CREATE INDEX current_product_id_related_index ON related(current_product_id ASC);
+CREATE INDEX related_product_id_related_index ON related(related_product_id ASC);
 
--- COPY product FROM '/Users/brentonhershner/sw/hr/SDC/Tobrega-Products/data/cleaned/product.csv' WITH delimiter ',' NULL AS 'null' csv header;
--- COPY related FROM '/Users/brentonhershner/sw/hr/SDC/Tobrega-Products/data/cleaned/related.csv' WITH delimiter ',' NULL AS 'null' csv header;
--- COPY features FROM '/Users/brentonhershner/sw/hr/SDC/Tobrega-Products/data/cleaned/features.csv' WITH delimiter ',' NULL AS 'null' csv header;
--- COPY styles FROM '/Users/brentonhershner/sw/hr/SDC/Tobrega-Products/data/cleaned/styles.csv' WITH delimiter ',' NULL AS 'null' csv header;
--- COPY photos FROM '/Users/brentonhershner/sw/hr/SDC/Tobrega-Products/data/cleaned/photos.csv' WITH delimiter ',' NULL AS 'null' csv header;
--- COPY skus FROM '/Users/brentonhershner/sw/hr/SDC/Tobrega-Products/data/cleaned/skus.csv' WITH delimiter ',' NULL AS 'null' csv header;
+COPY product FROM '/Users/brentonhershner/sw/hr/SDC/Tobrega-Products/data/cleaned/product.csv' WITH delimiter ',' NULL AS 'null' csv header;
+COPY related FROM '/Users/brentonhershner/sw/hr/SDC/Tobrega-Products/data/cleaned/related.csv' WITH delimiter ',' NULL AS 'null' csv header;
+COPY features FROM '/Users/brentonhershner/sw/hr/SDC/Tobrega-Products/data/cleaned/features.csv' WITH delimiter ',' NULL AS 'null' csv header;
+COPY styles FROM '/Users/brentonhershner/sw/hr/SDC/Tobrega-Products/data/cleaned/styles.csv' WITH delimiter ',' NULL AS 'null' csv header;
+COPY photos FROM '/Users/brentonhershner/sw/hr/SDC/Tobrega-Products/data/cleaned/photos.csv' WITH delimiter ',' NULL AS 'null' csv header;
+COPY skus FROM '/Users/brentonhershner/sw/hr/SDC/Tobrega-Products/data/cleaned/skus.csv' WITH delimiter ',' NULL AS 'null' csv header;

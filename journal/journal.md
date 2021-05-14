@@ -419,7 +419,20 @@ There was some speculation that the async/await or routers might be causing the 
 
 ![](./images/2021-05-13-15-52-57.png)
 
+In setting up the database on the EC2 instance, [this Logrocket article](https://blog.logrocket.com/setting-up-a-remote-postgres-database-server-on-ubuntu-18-04/) was EXTREMELY helpful.
 
+### Breakthrough!
+
+Had to call out the big dogs but after 30 minutes of debugging, Josh finally found the issue. I had inadvertantly created two databases. One was being indexed and one was not. psql was querying the indexed database and pg was querying the non-indexed database. The performance improvements are significant.
+
+ACTUAL results of pre and post indexing with 10 vus, 30s duration, 1 s sleep, and hitting beginning, middle, and end, of the database:
+
+| Description      | k6 avg pre-index | k6 avg w/indexing |
+| ---------------- | ------ | --- |
+| List Products    | 213 ms  |  ms |
+| Product Info     | 283 ms | 7.77 ms |
+| Product Styles   | 4.74 s | 4.73 ms |
+| Related Products | 159 ms | 6.17 ms |
 
 ---
 

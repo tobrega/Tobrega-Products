@@ -73,54 +73,93 @@ router.get('/:id/styles', async (req, res) => {
     const productId = req.params.id;
     const start = Date.now();
 
+    // const queryString = `
+    // SELECT product_id, 
+    //   (
+    //     SELECT array_to_json(array_agg(row_to_json(s))) as results
+    //     FROM (
+    //       SELECT
+    //         style_id,
+    //         name,
+    //         original_price,
+    //         sale_price,
+    //         default_style AS "default?",
+    //         (
+    //           SELECT array_to_json(array_agg(row_to_json(p)))
+    //           FROM (
+    //             SELECT
+    //               thumbnail_url,
+    //               url
+    //             FROM photos
+    //             WHERE photos.style_id = styles.style_id
+    //           ) p
+    //         ) photos,
+    //         (
+    //           SELECT json_object_agg(sku_id, json_build_object('quantity', quantity, 'size', size))
+    //           FROM (
+    //             SELECT
+    //               sku_id,
+    //               quantity,
+    //               size
+    //             FROM skus
+    //             WHERE skus.style_id = styles.style_id
+    //           ) k
+    //         ) skus
+    //       FROM styles
+    //       WHERE product_id = $1
+    //     ) s
+    //   )
+    // FROM styles
+    // WHERE product_id = $1;
+    // `;
     const queryString = `
-    SELECT product_id, 
-      (
-        SELECT array_to_json(array_agg(row_to_json(s))) as results
-        FROM (
-          SELECT
-            style_id,
-            name,
-            original_price,
-            sale_price,
-            default_style AS "default?",
-            (
-              SELECT array_to_json(array_agg(row_to_json(p)))
-              FROM (
-                SELECT
-                  thumbnail_url,
-                  url
-                FROM photos
-                WHERE photos.style_id = styles.style_id
-              ) p
-            ) photos,
-            (
-              SELECT json_object_agg(sku_id, json_build_object('quantity', quantity, 'size', size))
-              FROM (
-                SELECT
-                  sku_id,
-                  quantity,
-                  size
-                FROM skus
-                WHERE skus.style_id = styles.style_id
-              ) k
-            ) skus
-          FROM styles
-          WHERE product_id = $1
-        ) s
-      )
-    FROM styles
-    WHERE product_id = $1;
+    SELECT product_id,
+    (
+      SELECT array_to_json(array_agg(row_to_json(s))) as results
+      FROM (
+        SELECT
+          style_id,
+          name,
+          original_price,
+          sale_price,
+          default_style AS "default?",
+          (
+            SELECT array_to_json(array_agg(row_to_json(p)))
+            FROM (
+              SELECT
+                thumbnail_url,
+                url
+              FROM photos
+              WHERE photos.style_id = styles.style_id
+            ) p
+          ) photos,
+          (
+            SELECT json_object_agg(sku_id, json_build_object('quantity', quantity, 'size', size))
+            FROM (
+              SELECT
+                sku_id,
+                quantity,
+                size
+              FROM skus
+              WHERE skus.style_id = styles.style_id
+            ) k
+          ) skus
+        FROM styles
+        WHERE product_id = 1
+      ) s
+    )
+  FROM styles
+  WHERE product_id = 1;
     `;
 
-    const stylesQuery = await db.query(queryString, [productId]);
+    const stylesQuery = await db.query(queryString);
 
     const styles = stylesQuery.rows[0];
     // console.log(`Retrieving styles took ${Date.now() - start} ms`);
     // console.log(JSON.stringify(styles, null, 2));
     res.status(200).send(styles);
 
-    // const stylesExplainer = await db.query(`EXPLAIN ANALYZE ${queryString}`, [productId]);
+    // const stylesExplainer = await db.query(`EXPLAIN ANALYZE ${queryString}`);
     // console.log(stylesExplainer);
 
   } catch (err) {
