@@ -3,7 +3,6 @@ const { Pool } = require('pg');
 const config = require('../config');
 
 const pool = new Pool(config);
-console.log('created new pool');
 
 pool.on('error', (err) => {
   console.error('Unexpected error on idle client', err);
