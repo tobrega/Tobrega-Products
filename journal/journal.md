@@ -444,6 +444,8 @@ to exit ssh, exit then enter or ctrl+d
 
 [Here](https://betterprogramming.pub/how-to-provision-a-cheap-postgresql-database-in-aws-ec2-9984ff3ddaea) is a really great guide I followed to install postgres onto an EC2 instance.
 
+## Daily Reflections 2021-05-14 W9D5
+
 Refresh Ubuntu packages:
 
     sudo apt-get update -y && sudo apt-get upgrade -y
@@ -459,7 +461,7 @@ Install non-Node build tools:
 
 Install git:
 
-sudo apt-get install git
+    sudo apt-get install git
 
 Reroute all traffic received at :80 to :3000 instead. Match the port in your security config and app. Later change this to allow for load balancing.
 
@@ -544,8 +546,16 @@ Next, I'm going to test to verify I'm returning results from the correct databas
 
 I ran into an issue where I couldn't insert items into the database because I setup the dbuser on the wrong database. I tried to log into the superuser postgres but it was asking for a password I had not set. After some googling, I found that I should not have changed permissions on the Database administrative login by Unix domain socket to md5, which I must have done. This should be left as peer. I changed it back and was able to login. Lesson learned.
 
+Setting up the server instance was pretty easy and very much similar to the database setup except for cloning the git repo, installing node packages, and editing the config file to point to the database on the other EC2 instance. It's up and working. Morgan loging was briefly turned on to test response times between the ec2 server and the ec2 database. It was returning 5-19 ms! Postman was 30-90 ms depending on the product_id which indicates the additional time the network takes between my machine and the ec2 instance.
 
+Also - I lucked out and both instances I created were on the same subnet, but for fugure reference, it's important to add them to a subnet group BEFORE creating them. Otherwise it has to be [manually migrated](https://aws.amazon.com/premiumsupport/knowledge-center/move-ec2-instance/), which sounds like a total pain.
 
+Next, I want to figure out how to have node persist after I close the ssh connection. Several options were suggested to explore, including:
+
+- [Forever.js](https://www.npmjs.com/package/forever) (npm module)
+- [PM2](https://www.npmjs.com/package/pm2) (npm module with more downloads and more support)
+- [tmux](https://www.hamvocke.com/blog/a-quick-and-easy-guide-to-tmux/) (does a lot. Not exactly light weight for what I'm looking for)
+- or [screen](https://www.rackaid.com/blog/linux-screen-tutorial-and-how-to/) (installed via yum, comes highly rated, and very lightweight) <- giving this a try first.
 
 
 
