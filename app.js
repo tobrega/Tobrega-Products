@@ -13,6 +13,7 @@ app.use('/products', products);
 
 // for loader.io verification
 app.get('/loaderio-4ae48528e78e767a9c740680c10093da', (req, res) => {
+  console.log('sending loader.io verification');
   res.status(204).send('loaderio-4ae48528e78e767a9c740680c10093da');
 });
 // above is for loader.io verification
