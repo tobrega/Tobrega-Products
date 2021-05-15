@@ -444,28 +444,105 @@ to exit ssh, exit then enter or ctrl+d
 
 [Here](https://betterprogramming.pub/how-to-provision-a-cheap-postgresql-database-in-aws-ec2-9984ff3ddaea) is a really great guide I followed to install postgres onto an EC2 instance.
 
-Refresh Ubuntu packages: `sudo apt-get update -y && sudo apt-get upgrade -y`
-Install Postgres: `sudo apt install postgresql -y`
+Refresh Ubuntu packages:
 
-To login to the server: `sudo -i -u postgres`
+    sudo apt-get update -y && sudo apt-get upgrade -y
 
-Create a user and add permissions: 
+Install node: 
 
-```
-psql -U postgres -c "CREATE ROLE username;"
-psql -U postgres -c "ALTER ROLE  username  WITH LOGIN;"
-psql -U postgres -c "ALTER USER  username  CREATEDB;"
-psql -U postgres -c "ALTER USER  username  WITH PASSWORD 'notActualPassword';"
-exit
-```
+    curl -fsSL https://deb.nodesource.com/setup_16.x | sudo -E bash -
+    sudo apt-get install -y nodejs
 
-Navigate to postgresql.conf file at `/etc/postgresql/12/main/postgresql.conf`. 
+Install non-Node build tools: 
 
-Change  `sudo nano postgresql.conf` Allow the Postgres server to listen on the DNS name of the EC2 instance. Uncomment listen_addresses and change it's value to = '*'.
+    sudo apt-get install gcc g++ make
 
-Change  `sudo nano pg_hba.conf` Allow authentications from remote connections. Change IP addresses to 0.0.0.0/0 and ::/0. Uncomment listen_addresses and change it's value to = '*'.
+Install git:
 
-Restart postgres: `sudo systemctl restart postgresql`
+sudo apt-get install git
+
+Reroute all traffic received at :80 to :3000 instead. Match the port in your security config and app. Later change this to allow for load balancing.
+
+    sudo iptables -t nat -A PREROUTING -i eth0 -p tcp --dport 80 -j REDIRECT --to-port 3000
+
+Install Postgres:
+
+    sudo apt install postgresql -y
+
+Create a new user:
+
+    sudo -u postgres createuser --interactive --pwprompt
+    Enter name of role to add: dbuser
+    Enter password for new role: ************
+    Enter it again: ************
+    Shall the new role be a superuser? (y/n) n
+    Shall the new role be allowed to create databases? (y/n) y
+    Shall the new role be allowed to create more new roles? (y/n) y
+
+Create a new database:
+
+    sudo -u postgres createdb -O dbuser products
+
+Log back into postgres to verify the user and database creation.
+
+    sudo -u postgres psql
+    \du
+    \l
+
+    GRANT TEMP ON DATABASE postgres TO dbuser;
+    GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO dbuser;
+    GRANT EXECUTE ON ALL FUNCTIONS IN SCHEMA public TO dbuser;
+    GRANT USAGE ON ALL SEQUENCES IN SCHEMA public TO dbuser;
+
+I can log into the database with `sudo -u postgres psql products` but not with `sudo -u dbuser psql prodcts` or even if I add a `-W` somewhere in the command. Not sure what's going on...
+
+This is why I was having trouble logging in... [peer authentication requires the current UNIX user to have the same user name as psql](https://gist.github.com/AtulKsol/4470d377b448e56468baef85af7fd614) This can be changed by changing the "TYPE DATABASE USER ADDRESS METHOD" from peer to md5 in the pg_hba.conf file.
+
+Navigate to postgresql.conf file at /etc/postgresql/13/main/
+
+Change  sudo nano postgresql.conf Allow the Postgres server to listen on the DNS name of the EC2 instance. Uncomment listen_addresses and change it's value to = '*'.
+
+Navigate to pg_hba.conf file at /etc/postgresql/13/main/
+
+Change  sudo nano pg_hba.conf Allow authentications from remote connections. Change IP addresses to 0.0.0.0/0 and ::/0. Uncomment listen_addresses and change it's value to = '*'.
+
+Allow port 5432 through the firewall
+
+    sudo ufw allow 5432/tcp
+
+Restart postgres:
+
+    sudo systemctl restart postgresql
+
+From the root login you can login to the database with this.
+
+    psql -U dbuser -d products
+
+Postgres can now be logged into remotely with this:
+
+    psql -h 35.167.245.107 -d products -U dbuser
+
+To [transfer files to a remote database](https://stackoverflow.com/questions/1237725/copying-postgresql-database-to-another-server) from the local machine [pg_dump](https://www.postgresql.org/docs/9.6/app-pgdump.html) can be used to extract a PostgreSQL database into a script file or other archive file, which psql can then run to recreate the database remotely:
+
+
+
+    pg_dump -C -c postgres | psql -h 35.167.245.107 -U dbuser products
+
+-C or --create creates the database
+
+-c or --clean drops the database objects prior to outputting the commands for creating them
+
+-h **host** or --host=**host** specifies the host name of the machine on which the server is running.
+
+-U **username** or --username=**username** username to connect as.
+
+The database took about 30 minutes to upload but it appears to be running on the EC2 instance. The config file was modified to connect to the aws ec2 instead of the local postgres database.
+
+Next, I'm going to test to verify I'm returning results from the correct database by inserting dummy data into the database through the ssh and verify I can retrieve it.
+
+    INSERT INTO product (product_id, name, slogan, description, category, default_price) VALUES (1000012, 'Test Name', 'Test Slogan', 'Test Description', 'Test Category', 1);
+
+I ran into an issue where I couldn't insert items into the database because I setup the dbuser on the wrong database. I tried to log into the superuser postgres but it was asking for a password I had not set. After some googling, I found that I should not have changed permissions on the Database administrative login by Unix domain socket to md5, which I must have done. This should be left as peer. I changed it back and was able to login. Lesson learned.
 
 
 
@@ -488,3 +565,5 @@ And I think I randomly found what I was looking for to just return the value and
 - [Postgres Cheat Sheet (pdf)](https://www.postgresqltutorial.com/wp-content/uploads/2018/03/PostgreSQL-Cheat-Sheet.pdf)
 - [How to run an SQL file in Postgres](https://kb.objectrocket.com/postgresql/how-to-run-an-sql-file-in-postgres-846)
 - [17 Practial psql Commands That You Don't Want To Miss](https://www.postgresqltutorial.com/psql-commands/)
+- [Another Postgresql cheatsheet](https://karloespiritu.github.io/cheatsheets/postgresql/)
+
