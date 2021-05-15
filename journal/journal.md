@@ -555,7 +555,7 @@ Next, I want to figure out how to have node persist after I close the ssh connec
 - [Forever.js](https://www.npmjs.com/package/forever) (npm module)
 - [PM2](https://www.npmjs.com/package/pm2) (npm module with more downloads and more support)
 - [tmux](https://www.hamvocke.com/blog/a-quick-and-easy-guide-to-tmux/) (does a lot. Not exactly light weight for what I'm looking for)
-- or [screen](https://www.rackaid.com/blog/linux-screen-tutorial-and-how-to/) (installed via yum, comes highly rated, and very lightweight) <- giving this a try first.
+- or [screen](https://www.rackaid.com/blog/linux-screen-tutorial-and-how-to/) (comes preinstalled and very lightweight) <- giving this a try first.
 
 
 
