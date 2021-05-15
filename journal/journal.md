@@ -399,6 +399,10 @@ My plan is to just deploy what I have and book office hours to try to figure out
 
 Other activities today: AWS account created. Spun up an EC2 instance but the key downloaded was a .cer file and not a .pem file. I might have missed an option somewhere. There are scripts people have dropped in stack overflow to convert .cer files into .pem files but the two I tried didn't work. Hopefully I didn't just install a bitcoin miner on my local machine... 😬 It's now 11:30pm. 😴 I'm going to start over in the morning.
 
+And I think I randomly found what I was looking for to just return the value and not an object with a key value pair. This is from the [pg documentaiton](https://node-postgres.com/features/queries)
+
+![](./images/2021-05-12-15-54-23.png)
+
 ## Daily Reflections 2021-05-13 W9D4
 
 .cer vs .pem file - Turns out it seems like [either is ok.](https://stackoverflow.com/questions/23225112/amazon-aws-ec2-getting-a-cer-file-instead-of-pem/23595139) Further, at the suggestion of my group mates, I opened the .cer file up in a text editor and it appears to be in the same format as .pem. I'll try the .cer file directly first and if it doesn't work, rename it as .pem.
@@ -557,15 +561,15 @@ Next, I want to figure out how to have node persist after I close the ssh connec
 - [tmux](https://www.hamvocke.com/blog/a-quick-and-easy-guide-to-tmux/) (does a lot. Not exactly light weight for what I'm looking for)
 - or [screen](https://www.rackaid.com/blog/linux-screen-tutorial-and-how-to/) (comes preinstalled and very lightweight) <- giving this a try first.
 
+Loader.io is typically used for testing after deployment. This controls for delays in the network because it measures number of requests per second instead of response time.
+
+With a single server, I was able to get 4800 clients per second hitting two endpoints (so 9600 requests per second) with a 0.0% error rate on a single server. The average response time, at 16449 ms, is abismal though... Results are [here](https://bit.ly/3eNJfWD) and if that link ever dies, here is a screen cap of the result: ![](./images/2021-05-14-22-32-19.png)
 
 
 Need load balances for each server endpoint. Need a load balancer to direct to different clients too.
 
-loader.io for deployed testing
 
-And I think I randomly found what I was looking for to just return the value and not an object with a key value pair. This is from the [pg documentaiton](https://node-postgres.com/features/queries)
 
-![](./images/2021-05-12-15-54-23.png)
 
 ---
 
