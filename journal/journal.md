@@ -568,6 +568,46 @@ With a single server, I was able to get 4800 clients per second hitting two endp
 
 Need load balances for each server endpoint. Need a load balancer to direct to different clients too.
 
+## Daily Reflections 2021-05-14 W9D5
+
+After spinning up a new EC2 instance and ssh'ing into it,
+
+I follwoed run the following command to install nginx:
+
+    sudo apt-get install -y nginx
+
+Verify nginx was installed by running:
+
+    sudo nginx -v
+
+and in the console, you should see something like 
+
+    nginx version: nginx/1.18.0 (Ubuntu)
+
+If nginx stops running and you want to start it, run:
+
+    sudo nginx
+
+Verify nginx is running by running:
+
+    service nginx status
+
+or
+
+    systemctl is-active nginx
+
+or navigate to the public IP address and check to see if the default html file has been loaded. 
+
+You can also check to see what application is listening to port 80 by running:
+
+    sudo lsop -i TCP:80
+
+Run `curl -I 127.0.0.1`. Should get something resembling this:
+
+![](./images/2021-05-15-15-20-12.png)
+
+
+
 
 
 
@@ -580,4 +620,3 @@ Need load balances for each server endpoint. Need a load balancer to direct to d
 - [How to run an SQL file in Postgres](https://kb.objectrocket.com/postgresql/how-to-run-an-sql-file-in-postgres-846)
 - [17 Practial psql Commands That You Don't Want To Miss](https://www.postgresqltutorial.com/psql-commands/)
 - [Another Postgresql cheatsheet](https://karloespiritu.github.io/cheatsheets/postgresql/)
-
