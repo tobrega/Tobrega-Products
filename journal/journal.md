@@ -602,11 +602,17 @@ You can also check to see what application is listening to port 80 by running:
 
     sudo lsop -i TCP:80
 
+If you ever need to restart nginx run:
+
+    sudo systemctl restart nginx
+
 Run `curl -I 127.0.0.1`. Should get something resembling this:
 
 ![](./images/2021-05-15-15-20-12.png)
 
+Edit /etc/nginx/sites-available to include the 
 
+The difference of which config files are active has been tripping me ([and apparently others up](https://serverfault.com/questions/527630/difference-in-sites-available-vs-sites-enabled-vs-conf-d-directories-nginx)).
 
 
 
