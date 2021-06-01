@@ -1,8 +1,8 @@
-# Tobrega-Products
+# Tobrega Products API
 
 ## Overview
 
-A brief description outlining what the project
+A backend server and database of product information for an e-commerce web app.
 
 ## Table of Contents
 
@@ -20,21 +20,15 @@ A more detailed outline of the project. What does it do? Is there a high level l
 
 ## Installation
 
-How can another developer get your project up and running on their own? What dependencies are required? Are there environmental requirements? Be specific, and outline steps to take in order to get the project running.
-
-```javascript
-npm install
-npm build
-npm start
-```
-
-Then navigate to <http://localhost:3000> in your browser
+- Clone the repo.
+- Navigate to the folder where it was cloned.
+- With [npm](https://npmjs.org/) installed, run `npm install && npm start`
+  - This will install all necessary packages, and start the express server.
 
 ## Usage
 
-Further details on how the project is meant to be used may be helpful. For a library or framework, this section would outline how to use the library within another project (see socket.io). For a service that is meant to be used within a larger project architecture, instructions on how to integrate may be necessary (see node-statsD).
-
-Additionally, for some projects, additional information might make sense.
+- You can test the api by sending curl commands or a service to send requests for you such as [Postman](https://www.postman.com/).
+- Alternatively, you could install one of the front end clients and direct it to this api in order to fully use it.
 
 ## Related Projects
 
@@ -42,18 +36,8 @@ Links to other repositories that are related to the current one. Are there partn
 
 ## Team Members
 
-Add the names of your team members. Describe roles on the team such as "Product Owner", "Scrum Master" and more.
-
 - Brenton Hershner
-
-## Contributing
-
-If you'd like others to be able to contribute to your work, outline a process through which they can submit a request for changes to be incorporated. More specifically, outline the Git workflow for these contributors. Should they use a feature branching workflow? Should they rebase or merge? Should the fork the repository? What is the review process?
-
-## Roadmap
-
-What future enhancements are planned? What is the current status of the project? Is it being actively maintained?
 
 ## License
 
-Unlicensed
+ISC

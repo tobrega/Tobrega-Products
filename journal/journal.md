@@ -614,7 +614,7 @@ Edit /etc/nginx/sites-available to include the
 
 The difference of which config files are active has been tripping me ([and apparently others up](https://serverfault.com/questions/527630/difference-in-sites-available-vs-sites-enabled-vs-conf-d-directories-nginx)).
 
-
+I found the problem. iptables somehow got messed up and weren't forwarding.
 
 
 ---
